@@ -26,7 +26,7 @@ const user={
     role: 'admin'
 };
 
-const isAuthenticated= false;
+const isAuthenticated= true;
   
 const Header = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
