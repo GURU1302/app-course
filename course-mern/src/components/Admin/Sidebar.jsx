@@ -31,8 +31,8 @@ boxShadow={'-2px 0 10px rgba(107,70,193,0.5)'}
       <LinkButton
         Icon={RiEyeFill}
         text="Courses"
-        url={'courses'}
-        active={location.pathname === '/admin/courses'}
+        url={'admincourses'}
+        active={location.pathname === '/admin/admincourses'}
       />
       <LinkButton
         Icon={RiUser3Fill}
