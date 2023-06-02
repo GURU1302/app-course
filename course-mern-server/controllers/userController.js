@@ -30,6 +30,113 @@ user= await User.create({
      
 });
 
-sendTokens(res,user,"Registered Successfully","201");
+sendTokens(res,user,"Registered Successfully",201);
 
 } )
+export const login = catchAsyncError(async (req,res,next) => {
+
+const {email,password} =req.body;
+
+//const file =req.file;
+
+if(!email || !password)
+return next(new ErrorHandler("Please enter all field",400));
+
+
+const user = await User.findOne({email}).select("+password");
+
+if(!user)
+return next(new ErrorHandler("Incorrect email or Password", 401));
+
+const isMatch = await user.comparePassword(password);
+     
+if(!isMatch)
+return next(new ErrorHandler("Incorrect email or Password", 401));
+
+
+
+sendTokens(res,user,`Welcome Back, ${user.name}`,200);
+
+} )
+
+export const logout = catchAsyncError(async(req,res,next)=>{
+    res.status(200).cookie("token",null,{
+        expires: new Date(Date.now()),
+    }).json({
+        success:true,
+        message:"Logged Out Successfully",
+    })
+})
+
+export const getMyProfile = catchAsyncError(async(req,res,next)=>{
+
+    const user = await User.findById(req.user._id);
+    res
+    .status(200)
+    .json({
+        success:true,
+        user,
+    })
+})
+export const changePassword = catchAsyncError(async(req,res,next)=>{
+
+    const {oldPassword,newPassword}=req.body;
+
+    if(!oldPassword || !newPassword)
+return next(new ErrorHandler("Please enter all field",400));
+
+    const user= await User.findById(req.user._id).select("+password");
+
+    const isMatch = await user.comparePassword(oldPassword);
+     
+    if(!isMatch)
+    return next(new ErrorHandler("Old Password is not matching", 400));
+
+    user.password = newPassword;
+    await user.save();
+
+
+
+
+    res
+    .status(200)
+    .json({
+        success:true,
+        message:"Password changed successfully",
+    })
+})
+export const updateProfile = catchAsyncError(async(req,res,next)=>{
+
+    const {name,email}=req.body;
+
+
+    const user= await User.findById(req.user._id).select("+password");
+
+    if(name) user.name=name;
+    if(email) user.email=email;
+   
+    await user.save();
+
+
+
+
+    res
+    .status(200)
+    .json({
+        success:true,
+        message:"Profile Updated Successfully",
+    })
+})
+
+
+export const updateProfilePicture = (async(req,rees,next)=>{
+
+    //cloudinary todo
+
+    res.status(200)
+    .json({
+        success:true,
+        message:"Updated the profile Picture",
+    })
+    
+})
