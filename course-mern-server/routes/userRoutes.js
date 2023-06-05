@@ -1,5 +1,5 @@
 import express from "express";
-import { changePassword, getMyProfile, login, logout, register, updateProfile, updateProfilePicture } from "../controllers/userController.js";
+import { addToPlaylist, changePassword, forgetPassword, getMyProfile, login, logout, register, removeFromPlaylist, resetPassword, updateProfile, updateProfilePicture } from "../controllers/userController.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 
 
@@ -24,6 +24,20 @@ router.route("/updateprofile").put(isAuthenticated, updateProfile);
 
 //update the profile picture
 router.route("/updateprofilepicture").put(isAuthenticated, updateProfilePicture);
+
+//forget password
+router.route("/forgetpassword").post(forgetPassword);
+
+
+//reset password
+router.route("/resetpassword/:token").put(resetPassword);
+
+//Add to playlist
+router.route("/addtoplaylist").post(isAuthenticated, addToPlaylist);
+
+//Remove from playlist
+router.route("/removefromplaylist").delete(isAuthenticated, removeFromPlaylist);
+
 
 
 
