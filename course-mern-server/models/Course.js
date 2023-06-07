@@ -51,7 +51,7 @@ const schema = new mongoose.Schema({
         default:0,
     },
 
-    numOfViews:{
+    numOfVideos:{
         type:Number,
         default:0,
         },

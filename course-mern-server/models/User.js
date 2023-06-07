@@ -27,6 +27,11 @@ const schema = new mongoose.Schema({
         default: "user",
     },
     
+    subscription: {
+      id: String,
+      status: String,
+    },
+    
     avatar: {
         public_id: {
           type: String,
