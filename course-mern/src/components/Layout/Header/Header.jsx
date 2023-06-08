@@ -13,30 +13,29 @@ import {
   import { ColorModeSwitcher } from '../../../ColorModeSwitcher';
   import { RiDashboardFill, RiLogoutBoxLine, RiMenu5Fill } from 'react-icons/ri';
   import { Link } from 'react-router-dom';
-//   import { useDispatch } from 'react-redux';
-//   import { logout } from '../../../redux/actions/user';
-
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../redux/actions/user';
+ 
 const LinkButton = ({url='/', title='Home', onClose}) =>(
   <Link onClick={onClose} to={url}>
   <Button variant={'ghost'}>{title}</Button>
   </Link>
 );
 
-const user={
-    role: 'admin'
-};
 
-const isAuthenticated= true;
+
   
-const Header = () => {
+const Header = ({ isAuthenticated = false, user }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
+
+    const dispatch = useDispatch();
+
+    const logoutHandler =()=>{
+      onClose();
+      dispatch(logout());
+    }
   
-    // const dispatch = useDispatch();
-  
-    // const logoutHandler = () => {
-    //   onClose();
-    //   dispatch(logout());
-    // }; 
+    
      return (
    <>
   <ColorModeSwitcher />
@@ -95,7 +94,7 @@ const Header = () => {
                             Profile
                           </Button>
                         </Link>
-                        <Button variant={'ghost'}>
+                        <Button variant={'ghost'} onClick={logoutHandler}>
                           <RiLogoutBoxLine />
                           Logout
                         </Button>
