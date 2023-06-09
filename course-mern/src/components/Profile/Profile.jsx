@@ -20,42 +20,42 @@ import {
   } from '@chakra-ui/react';
   import React, { useEffect } from 'react';
   import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
+import { useDispatch, useSelector } from 'react-redux';
   import { Link } from 'react-router-dom';
+import { updateProfilePicture } from '../../redux/actions/profile';
+import { loadUser } from '../../redux/actions/user';
 import { fileUploadCss } from '../Auth/Register';
-const Profile = () => {
-const user={
-    name: "Guru Bhai",
-    email: "guru@gmail.com",
-    createdAt:String(new Date().toISOString()),
-    avatar:{
-        url: "sadsad",
-    },
-    role: "user",
-    subscription:{
-        status: undefined,
-    },
-   playlist: [
-    {
-        course: "sadsad",
-        poster: "sdassd",
-    },
-    {
-        course: "sadsad",
-        poster: "sdassd",
-    },
-    {
-        course: "sadsad",
-        poster: "sdassd",
-    },
-   ]
-}
+const Profile = ({user}) => {
 
     const {isOpen, onOpen, onClose}=useDisclosure();
 
-    const changeImageSubmitHAndler = () =>(
-        console.log('image changed')
-    )
+    const { loading, message, error } = useSelector(state => state.profile);
+
+
+    const dispatch = useDispatch();
+
+    const changeImageSubmitHandler = async (e, image) => {
+      e.preventDefault();
+      const myForm = new FormData();
+      myForm.append('file', image);
+      await dispatch(updateProfilePicture(myForm));
+      dispatch(loadUser());
+    };
+    useEffect(() => {
+      if (error) {
+        toast.error(error);
+        dispatch({ type: 'clearError' });
+      }
+      if (message) {
+        toast.success(message);
+        dispatch({ type: 'clearMessage' });
+      }
+      
+    }, [dispatch, error, message,]);
+  
+  
 
   return (
    <Container 
@@ -75,7 +75,7 @@ padding={'8'}
 <VStack>
     <Avatar
     boxSize={'40'}
-    src={""}
+    src={user.avatar.url}
      />
      <Button
      onClick={onOpen}
@@ -166,10 +166,11 @@ alignItems={'center'}
 )} 
 
 <ChangePhotoBox  
-    changeImageSubmitHAndler={changeImageSubmitHAndler}
+    changeImageSubmitHandler={changeImageSubmitHandler}
     isOpen={isOpen}
     onOpen={onOpen}
     onClose={onClose}
+    loading={loading}
 />
 
    </Container>
@@ -180,13 +181,16 @@ export default Profile;
 
 
 function ChangePhotoBox({
+  loading,
     isOpen,
     onClose,
-changeImageSubmitHAndler,
+changeImageSubmitHandler,
 
 }){
     const [image, setImage] = useState('');
   const [imagePrev, setImagePrev] = useState('');
+
+  
 
   const changeImage = e => {
     const file = e.target.files[0];
@@ -213,7 +217,7 @@ changeImageSubmitHAndler,
         <ModalCloseButton />
         <ModalBody>
 <Container>
-    <form>
+    <form onSubmit={e => changeImageSubmitHandler(e, image)}>
        <VStack spacing={'8'}>
        {imagePrev && <Avatar src={imagePrev} boxSize={'48'}  />}
 
@@ -223,6 +227,7 @@ changeImageSubmitHAndler,
         css={{"&::file-selector-button": fileUploadCss}}
        />
        <Button
+       isLoading={loading}
        w='full'
        colorScheme={'yellow'}
        type='submit'
