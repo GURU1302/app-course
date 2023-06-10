@@ -25,14 +25,18 @@ import { RiDeleteBin7Fill } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
   import { Link } from 'react-router-dom';
 import { removeFromPlaylist, updateProfilePicture } from '../../redux/actions/profile';
-import { loadUser } from '../../redux/actions/user';
+import { cancelSubscription, loadUser } from '../../redux/actions/user';
 import { fileUploadCss } from '../Auth/Register';
 const Profile = ({user}) => {
 
     const {isOpen, onOpen, onClose}=useDisclosure();
 
     const { loading, message, error } = useSelector(state => state.profile);
-
+    const {
+      loading: subscriptionLoading,
+      message: subscriptionMessage,
+      error: subscriptionError,
+    } = useSelector(state => state.subscription);
 
     const dispatch = useDispatch();
 
@@ -48,6 +52,11 @@ const Profile = ({user}) => {
       await dispatch(updateProfilePicture(myForm));
       dispatch(loadUser());
     };
+
+    const cancelSubscriptionHandler = () => {
+      dispatch(cancelSubscription());
+    };
+
     useEffect(() => {
       if (error) {
         toast.error(error);
@@ -57,8 +66,18 @@ const Profile = ({user}) => {
         toast.success(message);
         dispatch({ type: 'clearMessage' });
       }
+      if (subscriptionMessage) {
+        toast.success(subscriptionMessage);
+        dispatch({ type: 'clearMessage' });
+        dispatch(loadUser());
+      }
+  
+      if (subscriptionError) {
+        toast.error(subscriptionError);
+        dispatch({ type: 'clearError' });
+      }
       
-    }, [dispatch, error, message,]);
+    }, [dispatch, error, message, subscriptionError, subscriptionMessage]);
   
   
 
@@ -109,7 +128,10 @@ alignItems={['center','flex-start']}
     <HStack>
         <Text children="Subscription" fontWeight={'bold'} />
         {user.subscription && user.subscription.status === 'active'?(
-<Button color={'yellow.500'} variant={'unstyled'}>
+<Button 
+isLoading={subscriptionLoading}
+onClick={cancelSubscriptionHandler}
+color={'yellow.500'} variant={'unstyled'}>
     Cancel Subscription
 </Button>
         ):(

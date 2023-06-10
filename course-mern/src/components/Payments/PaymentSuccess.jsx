@@ -11,6 +11,7 @@ import {
   import { Link, useSearchParams } from 'react-router-dom';
   
 const PaymentSuccess = () => {
+  const reference = useSearchParams()[0].get('reference');
   return (
 <Container h="90vh" p="16">
       <Heading my="8" textAlign={'center'}>
@@ -44,7 +45,7 @@ const PaymentSuccess = () => {
           <Button variant={'ghost'}>Go to profile</Button>
         </Link>
 
-        <Heading size={'xs'}>Reference:</Heading>
+        <Heading size={'xs'}>Reference:{reference}</Heading>
       </VStack>
     </Container>  )
 }

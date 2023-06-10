@@ -7,9 +7,62 @@ import {
     VStack,
   } from '@chakra-ui/react';
   import axios from 'axios';
-  import React, { useState } from 'react';
+  import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { buySubscription } from '../../redux/actions/user';
+import {server} from "../../redux/store"
+import logo from '../../assets/images/logo.png';
+import { toast } from 'react-hot-toast';
 
-const Subscribe = () => {
+
+const Subscribe = ({user}) => {
+
+const dispatch = useDispatch();
+const [key,setKey] = useState("");
+
+const {loading,error,subscriptionId} =useSelector(state => state.subscription);
+
+const subscriptionHandler =async() =>{
+  const {data} = await axios.get(`${server}/razorpaykey`);
+ setKey(data.key);
+ dispatch(buySubscription());
+}
+
+useEffect(() => {
+ if(error){
+  toast.error(error);
+  dispatch({type: 'clearError'});
+ }
+ if(subscriptionId){
+  const openPopUp = () =>{
+const options ={
+  key,
+  name: "App-course",
+  description: "Get the premium access",
+  image:logo,
+  subscription_id:subscriptionId,
+  callback_url: `${server}/paymentverification`,
+  prefill: {
+    name: user.name,
+    email: user.email,
+    contact: '',
+  },
+  notes: {
+    address: '6 pack programmer at youtube',
+  },
+  theme: {
+    color: '#FFC800',
+  },
+};
+const razor = new window.Razorpay(options);
+razor.open();
+  };
+  openPopUp();
+
+ }
+}, [dispatch,error,key,subscriptionId,user.name,user.email])
+
+
   return (
      <Container h="90vh" p="16">
       <Heading children="Welcome" my="8" textAlign={'center'} />
@@ -30,6 +83,8 @@ const Subscribe = () => {
           </VStack>
 
           <Button
+          isLoading={loading}
+          onClick={subscriptionHandler}
             my="8"
             w="full"
             colorScheme={'yellow'}
