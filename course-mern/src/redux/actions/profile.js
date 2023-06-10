@@ -60,3 +60,104 @@ export const changePassword = (oldPassword,newPassword) => async dispatch =>{
 
     }
 };
+export const forgetPassword = email => async dispatch => {
+    try {
+      dispatch({ type: 'forgetPasswordRequest' });
+  
+      const config = {
+        headers: {
+          'Content-type': 'application/json',
+        },
+  
+        withCredentials: true,
+      };
+  
+      const { data } = await axios.post(
+        `${server}/forgetpassword`,
+        {
+          email,
+        },
+        config
+      );
+  
+      dispatch({ type: 'forgetPasswordSuccess', payload: data.message });
+    } catch (error) {
+      dispatch({
+        type: 'forgetPasswordFail',
+        payload: error.response.data.message,
+      });
+    }
+  };
+
+  
+export const resetPassword = (token,password) => async dispatch =>{
+    try {
+       dispatch({type:"resetPasswordRequest"});
+       
+       const {data} = await axios.put(
+        `${server}/resetpassword/${token}`,
+        {password},{
+            headers: {
+                'Content-Type': "application/json",
+            },
+            withCredentials:true,
+        },
+       );
+       dispatch({type:'resetPasswordSuccess', payload: data.message})
+    } catch (error) {
+        dispatch({type:'resetPasswordFail', payload: error.response.data.message});
+
+    }
+};
+
+export const addToPlaylist = id => async dispatch => {
+    try {
+      dispatch({ type: 'addToPlaylistRequest' });
+  
+      const config = {
+        headers: {
+          'Content-type': 'application/json',
+        },
+  
+        withCredentials: true,
+      };
+  
+      const { data } = await axios.post(
+        `${server}/addtoplaylist`,
+        {
+          id,
+        },
+        config
+      );
+  
+      dispatch({ type: 'addToPlaylistSuccess', payload: data.message });
+    } catch (error) {
+      dispatch({
+        type: 'addToPlaylistFail',
+        payload: error.response.data.message,
+      });
+    }
+  };
+  
+  export const removeFromPlaylist = id => async dispatch => {
+    try {
+      dispatch({ type: 'removeFromPlaylistRequest' });
+  
+      const config = {
+        withCredentials: true,
+      };
+  
+      const { data } = await axios.delete(
+        `${server}/removefromplaylist?id=${id}`,
+        config
+      );
+  
+      dispatch({ type: 'removeFromPlaylistSuccess', payload: data.message });
+    } catch (error) {
+      dispatch({
+        type: 'removeFromPlaylistFail',
+        payload: error.response.data.message,
+      });
+    }
+  };
+  

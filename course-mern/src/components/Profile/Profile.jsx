@@ -24,7 +24,7 @@ import { toast } from 'react-hot-toast';
 import { RiDeleteBin7Fill } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
   import { Link } from 'react-router-dom';
-import { updateProfilePicture } from '../../redux/actions/profile';
+import { removeFromPlaylist, updateProfilePicture } from '../../redux/actions/profile';
 import { loadUser } from '../../redux/actions/user';
 import { fileUploadCss } from '../Auth/Register';
 const Profile = ({user}) => {
@@ -35,6 +35,11 @@ const Profile = ({user}) => {
 
 
     const dispatch = useDispatch();
+
+    const removeFromPlaylistHandler = async id =>{
+      await dispatch(removeFromPlaylist(id));
+      dispatch(loadUser());
+    }
 
     const changeImageSubmitHandler = async (e, image) => {
       e.preventDefault();
@@ -155,6 +160,8 @@ alignItems={'center'}
                 </Link>
 
                 <Button
+                isLoading={loading}
+                onClick={() => removeFromPlaylistHandler(element.course)}
                 >
                   <RiDeleteBin7Fill />
                 </Button>

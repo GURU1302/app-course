@@ -10,7 +10,12 @@ import {
     VStack,
   } from '@chakra-ui/react';
   import React, { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
   import { Link } from 'react-router-dom';
+import { getAllCourses } from '../../redux/actions/course';
+import { addToPlaylist } from '../../redux/actions/profile';
+import { loadUser } from '../../redux/actions/user';
 
 const Course=({
     views,
@@ -90,9 +95,31 @@ const Courses = () => {
     const [keywords, setKeywords]= useState('');
     const [category, setCategory]= useState('');
 
-const addToPlaylistHandler=()=>{
-    console.log("added to the playlist");
+    const dispatch = useDispatch();
+   
+
+const addToPlaylistHandler=async(courseid)=>{
+    await dispatch(addToPlaylist(courseid));
+    dispatch(loadUser());
 }
+
+const {loading, error, courses, message} = useSelector(state => state.course);
+
+
+useEffect(() => {
+  dispatch(getAllCourses(category, keywords));
+
+  if (error) {
+    toast.error(error);
+    dispatch({ type: 'clearError' });
+  }
+
+  if (message) {
+    toast.success(message);
+    dispatch({ type: 'clearMessage' });
+  }
+}, [category, keywords, dispatch, error, message]);
+
 
     const categories = [
         'Web development',
@@ -142,19 +169,27 @@ const addToPlaylistHandler=()=>{
       justifyContent={['flex-start' , 'space-evenly']}
       alignItems={['center' , 'flex-start']}
       >
-      <Course
-      title={'Sampel'}
-      description={'Sampel'}
-      views={23}
-      imageSrc={'Sampel'}
-      id={'Sampel'}
-      creator= { 'Sampel boy'}
-      lectureCount={2}
+      {
+        courses.length >0 ? (courses.map((item)=>(
+          <Course
+          key={item._id}
+      title={item.title}
+      description={item.description}
+      views={item.views}
+      imageSrc={item.poster.url}
+      id={item._id}
+      creator= {item.createdBy}
+      lectureCount={item.numOfVideos}
       addToPlaylistHandler={addToPlaylistHandler}
+      loading={loading}
      />
-      </Stack>
+      
+        ))):(
+          <Heading mt="4" children="Courses Not Found" />
+        )
+      }
 
-
+</Stack>
     </Container>
 
 
