@@ -1,55 +1,48 @@
 import { Box, Grid, Heading, Text, VStack } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import introVideo from '../../assets/videos/intro.mp4';
+import { useDispatch, useSelector } from 'react-redux';
+import { Navigate, useParams } from 'react-router-dom';
+import { getCourseLectures } from '../../redux/actions/course';
+import Loader from '../Layout/Loader/Loader';
 
 
-const CoursePage = () => {
+const CoursePage = ({user}) => {
     const [lectureNumber, setLectureNumber] = useState(0);
+    const {lectures, loading} = useSelector(state => state.course);
 
-    const lectures=[{
-        _id: 'sadasdsad',
-        title: 'sample',
-        description: 'sample secfdf ndfds fsf asd fads',
-        video: {
-        url: 'sadsad',
-        },
-    },
-    {
-        _id: 'sadasdsad2',
-        title: 'sample2',
-        description: 'sample secfdf ndfds fsf asd fads',
-        video: {
-        url: 'sadsad',
-        },
-    },
-    {
-        _id: 'sadasdsad3',
-        title: 'sample3',
-        description: 'sample secfdf ndfds fsf asd fads',
-        video: {
-        url: 'sadsad',
-        },
-    },
-    {
-        _id: 'sadasdsad4',
-        title: 'sample4',
-        description: 'sample secfdf ndfds fsf asd fads',
-        video: {
-        url: 'sadsad',
-        },
+
+    const dispatch = useDispatch();
+    const params = useParams();
+
+    useEffect(() => {
+     
+        dispatch(getCourseLectures(params.id))
+    }, [dispatch,params.id]);
+
+    if(user.role !== "admin" && 
+    (user.subscription === undefined || user.subscription.status !== "active")){
+
+        return <Navigate to={'/subscribe'} />;
     }
-]
+    
 
+   
   return (
-    <Grid minH={'90vh'} templateColumns={['1fr', '3fr 1fr']}>
-    <Box>
+
+    loading ? (
+        <Loader />
+    ):(
+<Grid minH={'90vh'} templateColumns={['1fr', '3fr 1fr']}>
+{lectures && lectures.length >0 ? (
+<>
+<Box>
         
         <video
           controls
           controlsList="nodownload nofullscreen noremoteplayback"
           disablePictureInPicture
           disableRemotePlayback
-          src={introVideo}
+          src={lectures[lectureNumber].video.url}
         ></video>
 
         <Heading m='4' children={`#${lectureNumber +1} ${lectures[lectureNumber].title}`} />
@@ -76,7 +69,14 @@ const CoursePage = () => {
         </button>
     ))}
 </VStack>
+</>
+):(
+    <Heading children="No Lectures" />
+)}
+   
     </Grid>
+    )
+    
   )
 }
 
